@@ -1,0 +1,148 @@
+name: fraud_detection_env
+version: "1.0.0"
+description: >
+  Financial fraud detection environment where an AI agent reviews Indian bank
+  transactions and classifies them as legitimate, suspicious, or fraudulent
+  using behavioural signals and pattern recognition across transaction history.
+  Features asymmetric reward design that penalises false positives (blocking
+  innocent customers) and false negatives (missing real fraud) at different rates,
+  mirroring real-world cost asymmetry in fraud operations.
+
+author: "Aarush Goyal"
+license: MIT
+
+server:
+  image: fraud_detection_env:latest
+  port: 8000
+  health_check: GET /health
+
+endpoints:
+  reset: POST /reset
+  step:  POST /step
+  state: GET  /state
+
+tasks:
+  - id: easy
+    name: Single Transaction Screening
+    description: >
+      Classify individual transactions that contain obvious fraud signals such as
+      geographic mismatches, velocity spikes, or unusual transaction amounts.
+      Each episode contains 5 transactions mixing clear fraud with obvious
+      legitimate purchases.
+    difficulty: easy
+    episode_steps: 5
+    expected_baseline_score: 0.70
+    expected_random_score: 0.20
+    expected_perfect_score: 1.0
+
+  - id: medium
+    name: Pattern Recognition
+    description: >
+      Identify fraud patterns across a sequence of 8 transactions. Each individual
+      signal may appear benign — only by combining signals across the sequence can
+      the agent recognise account takeovers, sleeper fraud, or friendly fraud.
+      Requires sequential memory and pattern reasoning.
+    difficulty: medium
+    episode_steps: 8
+    expected_baseline_score: 0.50
+    expected_random_score: 0.15
+    expected_perfect_score: 1.0
+
+  - id: hard
+    name: Mixed Portfolio Review
+    description: >
+      Review a portfolio of 15 mixed transactions — 6 fraud, 4 suspicious, and 5
+      legitimate. Sophisticated fraud patterns (money mules, synthetic identities,
+      first-party fraud) are mixed with normal transactions designed to trap
+      over-flagging agents. Graded on precision, recall, and F1 score. Every
+      false positive on a legitimate transaction incurs a heavy penalty.
+    difficulty: hard
+    episode_steps: 15
+    expected_baseline_score: 0.35
+    expected_random_score: 0.10
+    expected_perfect_score: 1.0
+
+action_space:
+  type: structured
+  fields:
+    classification:
+      type: enum
+      values: ["legitimate", "suspicious", "fraud"]
+    confidence:
+      type: float
+      range: [0.0, 1.0]
+    triggered_signals:
+      type: list[string]
+      note: "Only signals relevant to the current transaction are scored. Spurious signals on legitimate transactions receive no credit."
+      vocabulary:
+        - location_mismatch
+        - velocity_spike
+        - amount_anomaly
+        - unusual_time
+        - account_takeover_pattern
+        - card_testing_pattern
+        - new_device
+        - international_transaction
+        - high_risk_merchant
+        - chargeback_history
+        - money_mule_pattern
+        - synthetic_identity
+        - sudden_large_transaction
+        - no_prior_international_history
+        - rapid_merchant_change
+    recommended_action:
+      type: enum
+      values: ["allow", "flag_for_review", "decline", "request_verification"]
+      note: "'decline' rejects this specific transaction. 'flag_for_review' on a legitimate transaction incurs -0.15 penalty (anti-exploit)."
+    reasoning:
+      type: string
+      description: "One sentence explanation of the decision"
+
+observation_space:
+  type: structured
+  fields:
+    transaction_id:      {type: string}
+    amount:              {type: float,  description: "Transaction amount in INR (₹)"}
+    currency:            {type: string, description: "Always INR for this environment"}
+    merchant_category:   {type: string}
+    merchant_location:   {type: string, description: "City/country of the merchant"}
+    card_holder_location:{type: string, description: "Registered home city of the card holder"}
+    time_of_day:         {type: enum,   values: ["morning","afternoon","evening","night"]}
+    day_of_week:         {type: string}
+    transaction_history: {type: list,   description: "Last 5 transactions with amount/location/merchant/timestamp"}
+    account_age_days:    {type: int,    description: "Days since account was opened"}
+    previous_fraud_flags:{type: int,    description: "Number of prior fraud disputes on this account"}
+    velocity_last_hour:  {type: int,    description: "Number of transactions in the past 60 minutes"}
+    amount_vs_avg_ratio: {type: float,  description: "Current amount / 30-day average transaction amount"}
+    messages:            {type: list,   description: "Feedback messages from the environment about previous step"}
+    done:                {type: bool,   description: "True when the episode has ended"}
+    reward:              {type: float,  description: "Reward signal for the most recent action (null on reset)"}
+
+reward_function:
+  range: [-1.0, 1.0]
+  design_principle: "FP and FN penalties are mutually exclusive — they REPLACE the base wrong-classification penalty, not stack on top of it."
+  components:
+    classification_correct:                +0.35
+    other_misclassification:               -0.20
+    false_positive_penalty:                -0.30  # replaces -0.20 (blocking legitimate customer)
+    false_negative_penalty:                -0.40  # replaces -0.20 (missing real fraud — heaviest)
+    flag_for_review_on_legitimate:         -0.15  # anti flag-everything exploit
+    signal_quality:                        "0.20 * (signals_caught / gt_signals_for_this_txn)"
+    clean_no_signal_on_legitimate:         +0.10
+    recommended_action_correct:            +0.25
+    confidence_calibration_good:           +0.10  # correct + confidence > 0.7
+    confidence_calibration_bad:            -0.10  # wrong + confidence > 0.8
+  hard_task_portfolio_bonus:
+    f1_above_0_90:       +0.30
+    recall_above_0_95:   +0.20
+    fpr_below_0_05:      +0.20
+    max_bonus:           +0.70
+    timing:              "Applied once at episode end"
+  note: "Final reward is clipped to [-1.0, 1.0]"
+
+episode_steps:
+  easy:   5
+  medium: 8
+  hard:   15
+
+reward_range: [-1.0, 1.0]
