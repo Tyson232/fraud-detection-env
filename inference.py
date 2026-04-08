@@ -121,6 +121,10 @@ def build_user_message(obs: FraudObservation) -> str:
         f"  [{m}]" for m in obs.messages
     ) if obs.messages else "  (none)"
 
+    seq_ctx = ""
+    if obs.step_in_sequence is not None and obs.sequence_length is not None:
+        seq_ctx = f"\n          Sequence Step   : {obs.step_in_sequence} of {obs.sequence_length}"
+
     return textwrap.dedent(f"""
         TRANSACTION:
           ID              : {obs.transaction_id}
@@ -129,7 +133,7 @@ def build_user_message(obs: FraudObservation) -> str:
           Merchant City   : {obs.merchant_location}
           Card Holder     : {obs.card_holder_location}
           Time of Day     : {obs.time_of_day}
-          Day of Week     : {obs.day_of_week}
+          Day of Week     : {obs.day_of_week}{seq_ctx}
 
         ACCOUNT:
           Age (days)      : {obs.account_age_days}

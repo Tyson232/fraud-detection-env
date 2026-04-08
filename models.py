@@ -62,6 +62,8 @@ class FraudObservation(BaseModel):
     messages: List[str]       # feedback messages from environment
     done: bool
     reward: Optional[float] = None
+    step_in_sequence: Optional[int] = None   # position within current account sequence (1-based)
+    sequence_length: Optional[int] = None    # total steps in current account sequence
 
 
 class FraudState(BaseModel):

@@ -168,6 +168,8 @@ class FraudDetectionEnvironment:
         self._all_actions: List[FraudAction] = []
         self._all_txns: List[Dict[str, Any]] = []
         self._messages: List[str] = []
+        self._step_in_sequence: Optional[int] = None
+        self._sequence_length: Optional[int] = None
 
     def _advance_sequence(self, prev_action: Optional[str]) -> None:
         """
@@ -186,6 +188,10 @@ class FraudDetectionEnvironment:
         else:
             self._done = False
             self._current_txn = txn
+            # Expose temporal context — which step within this account's sequence
+            seq = self._sequences[min(self._seq_idx, len(self._sequences) - 1)]
+            self._step_in_sequence = seq._step   # already incremented = 1-based
+            self._sequence_length = seq.length
 
     def _next_from_current(self, prev_action: Optional[str]) -> Optional[Dict[str, Any]]:
         """For easy/medium: draw from sequences sequentially."""
@@ -295,6 +301,8 @@ class FraudDetectionEnvironment:
             messages=list(self._messages),
             done=self._done,
             reward=reward,
+            step_in_sequence=self._step_in_sequence,
+            sequence_length=self._sequence_length,
         )
 
     # ──────────────────────────────────────────────────────────────────────────
