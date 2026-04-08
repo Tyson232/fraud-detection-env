@@ -12,7 +12,7 @@ COPY . .
 # Runtime config
 ENV HOST=0.0.0.0
 ENV PORT=8000
-ENV WORKERS=4
+ENV WORKERS=2
 ENV MAX_CONCURRENT_ENVS=100
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -25,4 +25,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 CMD ["uvicorn", "server.app:app", \
      "--host", "0.0.0.0", \
      "--port", "8000", \
-     "--workers", "4"]
+     "--workers", "2"]
