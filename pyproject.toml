@@ -26,6 +26,7 @@ dependencies = [
     "openai>=1.20.0",
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",
+    "openenv-core>=0.2.0",
 ]
 
 [project.optional-dependencies]
@@ -36,7 +37,8 @@ dev = [
 ]
 
 [project.scripts]
-fraud-env-server = "server.app:app"
+fraud-env-server = "server.app:main"
+server = "server.app:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
