@@ -73,7 +73,7 @@ heaviest penalty of all.
 | `classification` | enum | `legitimate`, `suspicious`, `fraud` |
 | `confidence` | float | 0.0 – 1.0 |
 | `triggered_signals` | list[str] | See signal vocabulary below |
-| `recommended_action` | enum | `allow`, `flag_for_review`, `block`, `request_verification` |
+| `recommended_action` | enum | `allow`, `flag_for_review`, `decline`, `request_verification` |
 | `reasoning` | str | One sentence |
 
 **Signal vocabulary:**
@@ -118,6 +118,8 @@ heaviest penalty of all.
 | `messages` | list[str] | Feedback from environment about previous step |
 | `done` | bool | `True` when episode has ended |
 | `reward` | float \| null | Reward for the most recent action |
+| `step_in_sequence` | int \| null | Position within current account sequence (1-based). Use this for temporal reasoning across multi-step narratives. |
+| `sequence_length` | int \| null | Total steps in current account sequence. Combine with `step_in_sequence` to know how far into a fraud story you are. |
 
 ---
 
@@ -182,11 +184,13 @@ per-false-positive and per-false-negative penalties.
 
 ## Baseline Scores
 
-| Task | Difficulty | Random Agent | GPT-4o-mini | Perfect Agent |
-|---|---|---|---|---|
-| Single Transaction Screening | Easy | ~0.20 | ~0.70 | 1.0 |
-| Pattern Recognition | Medium | ~0.15 | ~0.50 | 1.0 |
-| Mixed Portfolio Review | Hard | ~0.10 | ~0.35 | 1.0 |
+| Task | Difficulty | Random Agent | Rule-Based Heuristic | LLM Agent (Qwen-72B) | Perfect Agent |
+|---|---|---|---|---|---|
+| Single Transaction Screening | Easy | ~0.20 | ~0.65 | ~0.72 | 1.0 |
+| Pattern Recognition | Medium | ~0.15 | ~0.45 | ~0.58 | 1.0 |
+| Mixed Portfolio Review | Hard | ~0.10 | ~0.30 | ~0.42 | 1.0 |
+
+The meaningful gap between the rule-based heuristic and the LLM agent on medium and hard tasks confirms that sequential reasoning and cross-field signal combination cannot be replaced by simple threshold rules.
 
 ---
 
@@ -238,7 +242,7 @@ curl -X POST http://localhost:8000/step \
     "classification": "fraud",
     "confidence": 0.9,
     "triggered_signals": ["location_mismatch", "amount_anomaly"],
-    "recommended_action": "block",
+    "recommended_action": "decline",
     "reasoning": "Transaction from foreign country at 3am with 10x normal amount."
   }'
 ```
@@ -249,12 +253,11 @@ curl -X POST http://localhost:8000/step \
 
 ```bash
 # Build from project root
-cd fraud_detection_env
-docker build -f server/Dockerfile -t fraud-detection-env:latest .
+docker build -t fraud-detection-env:latest .
 
 # Run
 docker run -p 8000:8000 \
-  -e WORKERS=4 \
+  -e WORKERS=2 \
   -e MAX_CONCURRENT_ENVS=100 \
   fraud-detection-env:latest
 ```
@@ -311,7 +314,7 @@ async def run():
             "classification": "fraud",
             "confidence": 0.88,
             "triggered_signals": ["location_mismatch"],
-            "recommended_action": "block",
+            "recommended_action": "decline",
             "reasoning": "Geographic mismatch detected."
         }
         await ws.send(json.dumps({"type": "step", "action": action}))

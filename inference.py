@@ -74,9 +74,12 @@ SYSTEM_PROMPT = textwrap.dedent("""
     1. Compare merchant_location vs card_holder_location
     2. Check velocity_last_hour (3+ elevated, 5+ suspicious)
     3. Check amount_vs_avg_ratio (2x notable, 4x+ anomalous)
-    4. Read transaction_history timestamps for dormancy
+    4. Read transaction_history timestamps for dormancy or cycling patterns
     5. Check account_age_days and previous_fraud_flags
-    6. Combine ALL weak signals — no single field is decisive
+    6. If "Sequence Step" is shown (e.g. "3 of 8"), this is a multi-step account
+       narrative — look at history to find the pattern building across prior steps.
+       Early steps may look legitimate; fraud only becomes clear by step 3-4+.
+    7. Combine ALL weak signals — no single field is decisive
 """).strip()
 
 

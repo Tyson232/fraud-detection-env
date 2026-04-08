@@ -117,6 +117,8 @@ observation_space:
     messages:            {type: list,   description: "Feedback messages from the environment about previous step"}
     done:                {type: bool,   description: "True when the episode has ended"}
     reward:              {type: float,  description: "Reward signal for the most recent action (null on reset)"}
+    step_in_sequence:    {type: int,    description: "Position within the current account sequence (1-based). Null for single-step tasks. Use this to know how far into a multi-step narrative you are."}
+    sequence_length:     {type: int,    description: "Total number of steps in the current account sequence. Null for single-step tasks. Together with step_in_sequence, enables temporal reasoning across the sequence."}
 
 reward_function:
   range: [-1.0, 1.0]
