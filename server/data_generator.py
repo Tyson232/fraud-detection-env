@@ -40,34 +40,92 @@ SIGNAL_VOCAB = [
 # ── Indian geography — state-wise neighbouring city pairs ─────────────────────
 # Key insight: fraud often uses a NEARBY city, not a foreign country
 CITY_NEIGHBOURS = {
-    "Mumbai":    ["Pune", "Nashik", "Thane"],
-    "Delhi":     ["Noida", "Gurgaon", "Faridabad"],
-    "Bengaluru": ["Mysuru", "Mangaluru", "Hubli"],
-    "Hyderabad": ["Secunderabad", "Warangal", "Vijayawada"],
-    "Chennai":   ["Vellore", "Coimbatore", "Madurai"],
-    "Kolkata":   ["Howrah", "Durgapur", "Asansol"],
-    "Pune":      ["Mumbai", "Nashik", "Kolhapur"],
-    "Ahmedabad": ["Surat", "Vadodara", "Rajkot"],
-    "Jaipur":    ["Jodhpur", "Ajmer", "Kota"],
-    "Lucknow":   ["Kanpur", "Agra", "Varanasi"],
+    "Mumbai":           ["Pune", "Nashik", "Thane", "Navi Mumbai"],
+    "Delhi":            ["Noida", "Gurgaon", "Faridabad", "Ghaziabad"],
+    "Bengaluru":        ["Mysuru", "Mangaluru", "Hubli", "Tumkur"],
+    "Hyderabad":        ["Secunderabad", "Warangal", "Vijayawada", "Karimnagar"],
+    "Chennai":          ["Vellore", "Coimbatore", "Madurai", "Kanchipuram"],
+    "Kolkata":          ["Howrah", "Durgapur", "Asansol", "Siliguri"],
+    "Pune":             ["Mumbai", "Nashik", "Kolhapur", "Satara"],
+    "Ahmedabad":        ["Surat", "Vadodara", "Rajkot", "Gandhinagar"],
+    "Jaipur":           ["Jodhpur", "Ajmer", "Kota", "Udaipur"],
+    "Lucknow":          ["Kanpur", "Agra", "Varanasi", "Prayagraj"],
+    "Bhopal":           ["Indore", "Jabalpur", "Gwalior", "Ujjain"],
+    "Indore":           ["Bhopal", "Ujjain", "Dewas", "Ratlam"],
+    "Nagpur":           ["Amravati", "Wardha", "Chandrapur", "Yavatmal"],
+    "Patna":            ["Muzaffarpur", "Gaya", "Bhagalpur", "Darbhanga"],
+    "Bhubaneswar":      ["Cuttack", "Puri", "Rourkela", "Berhampur"],
+    "Visakhapatnam":    ["Vijayawada", "Kakinada", "Rajahmundry", "Eluru"],
+    "Coimbatore":       ["Salem", "Tiruchirappalli", "Erode", "Tiruppur"],
+    "Thiruvananthapuram": ["Kochi", "Kozhikode", "Thrissur", "Kollam"],
+    "Chandigarh":       ["Mohali", "Panchkula", "Ambala", "Ludhiana"],
+    "Amritsar":         ["Ludhiana", "Jalandhar", "Chandigarh", "Bathinda"],
+    "Vadodara":         ["Surat", "Ahmedabad", "Anand", "Bharuch"],
+    "Kochi":            ["Thiruvananthapuram", "Thrissur", "Kozhikode", "Alappuzha"],
+    "Guwahati":         ["Silchar", "Jorhat", "Dibrugarh", "Tezpur"],
+    "Surat":            ["Vadodara", "Ahmedabad", "Bharuch", "Navsari"],
+    "Mysuru":           ["Bengaluru", "Mandya", "Hassan", "Chamarajanagar"],
 }
 INDIAN_CITIES = list(CITY_NEIGHBOURS.keys())
 
 # Only used for hard sleeper fraud (genuine international)
 FOREIGN_CITIES = [
     "Dubai, UAE", "Singapore", "Kuala Lumpur, Malaysia",
+    "Bangkok, Thailand", "Hong Kong", "Colombo, Sri Lanka",
 ]
 
-# Merchant fixtures
-GROCERY      = ["DMart", "BigBazaar", "Reliance Fresh", "More Supermarket", "Spencer's"]
-PHARMACY     = ["Apollo Pharmacy", "MedPlus", "Fortis Pharmacy", "Wellness Forever"]
-FUEL         = ["Indian Oil Petrol Pump", "BPCL Fuel Station", "HP Petrol Bunk"]
-ECOM         = ["Amazon India", "Flipkart", "Myntra", "Meesho", "Nykaa"]
-RESTAURANT   = ["Haldiram's", "McDonald's India", "Domino's Pizza", "Café Coffee Day"]
-ELECTRONICS  = ["Croma", "Reliance Digital", "Vijay Sales", "Samsung SmartCafé"]
-LUXURY       = ["Tanishq", "Malabar Gold", "FabIndia Premium", "W for Woman"]
-HIGH_RISK    = ["CoinSwitch Kuber", "WazirX Exchange", "BetWay India"]
-APPAREL      = ["Westside", "Max Fashion", "Zara India", "H&M India"]
+# Merchant fixtures — expanded pools to prevent pattern gaming
+GROCERY      = [
+    "DMart", "BigBazaar", "Reliance Fresh", "More Supermarket", "Spencer's",
+    "Nature's Basket", "Spar Hypermarket", "Star Bazaar", "V-Mart",
+    "Sahakari Bhandar", "Lulu Hypermarket", "Easyday Market",
+]
+PHARMACY     = [
+    "Apollo Pharmacy", "MedPlus", "Fortis Pharmacy", "Wellness Forever",
+    "Netmeds Store", "1mg Pharmacy", "Frank Ross Pharmacy", "Guardian Pharmacy",
+    "Himalaya Drug Store", "Zydus Pharmacy",
+]
+FUEL         = [
+    "Indian Oil Petrol Pump", "BPCL Fuel Station", "HP Petrol Bunk",
+    "Shell India", "Essar Petrol Pump", "Reliance Petro Station",
+]
+ECOM         = [
+    "Amazon India", "Flipkart", "Myntra", "Meesho", "Nykaa",
+    "Snapdeal", "Tata CLiQ", "Ajio", "Pepperfry", "JioMart",
+    "ShopClues", "Blinkit", "Zepto",
+]
+RESTAURANT   = [
+    "Haldiram's", "McDonald's India", "Domino's Pizza", "Café Coffee Day",
+    "KFC India", "Pizza Hut India", "Barbeque Nation", "Subway India",
+    "Burger King India", "Chaayos", "Mainland China", "Punjabi Tadka",
+]
+ELECTRONICS  = [
+    "Croma", "Reliance Digital", "Vijay Sales", "Samsung SmartCafé",
+    "iStore India", "Poorvika Mobiles", "Lot Mobiles", "Sangeetha Mobiles",
+    "Tata Electronics", "Jumbo Electronics",
+]
+LUXURY       = [
+    "Tanishq", "Malabar Gold", "FabIndia Premium", "W for Woman",
+    "PNG Jewellers", "Kalyan Jewellers", "Louis Philippe", "Raymond",
+    "Sabyasachi Studio", "Titan World",
+]
+HIGH_RISK    = [
+    "CoinSwitch Kuber", "WazirX Exchange", "BetWay India",
+    "Dream11", "MPL India", "Rummy Circle", "My11Circle",
+]
+APPAREL      = [
+    "Westside", "Max Fashion", "Zara India", "H&M India",
+    "Pantaloons", "Allen Solly", "Van Heusen", "Peter England",
+    "Biba", "Global Desi", "FabIndia", "Fabrics & Beyond",
+]
+TRAVEL       = [
+    "MakeMyTrip", "IRCTC", "Goibibo", "Yatra.com",
+    "IndiGo Airlines", "Air India", "SpiceJet", "Ola Cabs",
+]
+UTILITIES    = [
+    "BESCOM", "MSEDCL", "Tata Power", "Airtel Postpaid",
+    "Jio Broadband", "BSES Rajdhani", "Adani Electricity",
+]
 TIMES        = ["morning", "afternoon", "evening", "night"]
 DAYS         = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
@@ -730,7 +788,7 @@ class LegitAccountSequence(AccountSequence):
     def _generate_step(self, step: int) -> Optional[Dict[str, Any]]:
         if step >= 5:
             return None
-        cats = ["grocery", "restaurant", "pharmacy", "fuel", "ecommerce"]
+        cats = ["grocery", "restaurant", "pharmacy", "fuel", "ecommerce", "travel", "utilities"]
         cat = cats[step % len(cats)]
         amt = _noisy_amount(self._avg, self.rng, 0.65, 1.75)
 
