@@ -1,3 +1,12 @@
+---
+title: Fraud Detection Environment
+emoji: 💳
+colorFrom: red
+colorTo: orange
+sdk: docker
+pinned: false
+---
+
 # Financial Fraud Detection Environment
 
 A production-ready, OpenEnv-compliant reinforcement learning environment for
